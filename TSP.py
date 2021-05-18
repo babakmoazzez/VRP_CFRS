@@ -6,7 +6,7 @@ def distance(p1,p2):
     return ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)**0.5
 
 def subtourelimination(model, where):
-    '''cllback to add subtour elimination constraints as lazy cuts'''
+    '''callback to add subtour elimination constraints as lazy cuts'''
     if where == GRB.callback.MIPSOL:
         n=model._n
         sol={}
@@ -25,7 +25,7 @@ def subtourelimination(model, where):
             model.cbLazy(l <= len(cycle)-1)
 
 def subtour(edges,n):
-    '''find a subtour in the given solution'''
+    '''find a subtour in the given solution, networkx is used to find cycles'''
     g=nx.Graph()
     for (i,j) in edges:
         g.add_edge(i,j)
@@ -46,9 +46,8 @@ def solve_tsp(points):
     
     n=len(points)
     m = Model()
-
-    # Create variables
-
+    m.setParam('LogToConsole', 0)
+    # Create Variables
     variables = {}
     for i in range(n):
         for j in range(i+1):
@@ -56,6 +55,7 @@ def solve_tsp(points):
             variables[j,i] = variables[i,j]
         m.update()
 
+    #Create Constraints
     for i in range(n):
         m.addConstr(quicksum(variables[i,j] for j in range(n) if j!=i) == 2)
     
